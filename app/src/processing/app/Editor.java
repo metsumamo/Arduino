@@ -1034,6 +1034,9 @@ public class Editor extends JFrame implements RunnerListener {
     final Vector ports = getSerialPortNames();
 
     //XXX You may want to disable "OK" button while no port is detected.
+    // But, JOptionPane seems not provide any method to access buttons.
+    // If you want to do that, you have to write your own version of dialog
+    // using JFrame.
     final javax.swing.Timer timer = new javax.swing.Timer(
       300,	// 300 msec
       new ActionListener() {
