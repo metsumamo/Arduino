@@ -1380,8 +1380,8 @@ msgid "name is null"
 msgstr "nameがnullです"
 
 #: Editor.java:961
-msgid "Plug Now..."
-msgstr "いま接続する..."
+msgid "Find Arduino..."
+msgstr "Arduinoを見つける..."
 
 #: Editor.java:991 Editor.java:1010
 msgid "error retrieving port list"
@@ -1400,8 +1400,8 @@ msgid "Detected port:"
 msgstr "検出されたシリアルポート："
 
 #: Editor.java:1031
-msgid "Plug Now"
-msgstr "シリアルポートを接続する"
+msgid "Find Arduino"
+msgstr "Arduinoを見つける"
 
 #: Editor.java:1069
 #, java-format

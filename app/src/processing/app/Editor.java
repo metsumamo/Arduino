@@ -958,10 +958,10 @@ public class Editor extends JFrame implements RunnerListener {
 	
     serialMenu.removeAll();
 
-    rbMenuItem = new JMenuItem(_("Plug Now..."));
+    rbMenuItem = new JMenuItem(_("Find Arduino..."));
     rbMenuItem.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-	handlePlugNow();
+	handleFindArduino();
       }
     });
     serialMenu.add(rbMenuItem);
@@ -1013,7 +1013,7 @@ public class Editor extends JFrame implements RunnerListener {
     return ports;
   }
 
-  protected void handlePlugNow() {
+  protected void handleFindArduino() {
     final JLabel portlabel = new JLabel(_("(not yet detected)"));
     JLabel[] labels = {
       new JLabel(_("Plug Arduino to PC now and click OK to select the serial port.")),
@@ -1028,7 +1028,7 @@ public class Editor extends JFrame implements RunnerListener {
     );
     pane.setOptions(new String[] { _("OK"), _("Cancel") });
     pane.setInitialValue(_("Cancel"));
-    final JDialog dialog = pane.createDialog(this, _("Plug Now"));
+    final JDialog dialog = pane.createDialog(this, _("Find Arduino"));
     dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
     final Vector ports = getSerialPortNames();
