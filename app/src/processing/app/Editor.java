@@ -148,6 +148,8 @@ public class Editor extends JFrame implements RunnerListener {
   Runnable exportHandler;
   Runnable exportAppHandler;
 
+  volatile boolean haveToFindArduino = true;
+
 
   public Editor(Base ibase, String path, int[] location) {
     super("Arduino");
@@ -903,6 +905,10 @@ public class Editor extends JFrame implements RunnerListener {
 
     public void actionPerformed(ActionEvent e) {
       selectSerialPort(((JCheckBoxMenuItem)e.getSource()).getText());
+      haveToFindArduino = false;
+      //FIXME This is to prevent "Find Arduino" to run when uploading sketch
+      // after selecting a serial port manually. However, this flag become
+      // true like zombie. Thread synchronization?
       base.onBoardOrPortChange();
     }
 
@@ -1014,8 +1020,13 @@ public class Editor extends JFrame implements RunnerListener {
   }
 
   protected boolean handleFindArduino() {
+    return handleFindArduino(null);
+  }
+
+  protected boolean handleFindArduino(String message) {
     final JLabel portlabel = new JLabel(_("(not yet detected)"));
     JLabel[] labels = {
+      new JLabel(message),
       new JLabel(_("Plug Arduino to PC now and click OK to select the serial port.")),
       new JLabel(_("Detected port:")),
       portlabel
@@ -1075,6 +1086,7 @@ public class Editor extends JFrame implements RunnerListener {
 	serialMonitor.closeSerialPort();
 	serialMonitor.setVisible(false);
 	serialMonitor = new SerialMonitor(Preferences.get("serial.port"));
+	haveToFindArduino = false;
 	base.onBoardOrPortChange();
 	return true;
       }
@@ -2397,6 +2409,7 @@ public class Editor extends JFrame implements RunnerListener {
       return handleFindArduino();
     else {
       selectSerialPort(result);
+      haveToFindArduino = false;
       base.onBoardOrPortChange();
       return true;
     }
@@ -2423,6 +2436,19 @@ public class Editor extends JFrame implements RunnerListener {
     toolbar.activate(EditorToolbar.EXPORT);
     console.clear();
     status.progress(_("Uploading to I/O Board..."));
+
+    if (Preferences.getBoolean("serial.find_arduino_once_each_window")) {
+      if (haveToFindArduino) {
+	if (handleFindArduino(
+	    _("You have to find Arduino once for each window.")))
+	  haveToFindArduino = false;
+	else {
+	  statusNotice(_("Upload canceled."));
+	  toolbar.deactivate(EditorToolbar.EXPORT);
+	  return;
+	}
+      }
+    }
 
     new Thread(usingProgrammer ? exportAppHandler : exportHandler).start();
   }
