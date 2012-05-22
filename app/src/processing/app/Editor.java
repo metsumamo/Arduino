@@ -1013,7 +1013,7 @@ public class Editor extends JFrame implements RunnerListener {
     return ports;
   }
 
-  protected void handleFindArduino() {
+  protected boolean handleFindArduino() {
     final JLabel portlabel = new JLabel(_("(not yet detected)"));
     JLabel[] labels = {
       new JLabel(_("Plug Arduino to PC now and click OK to select the serial port.")),
@@ -1076,8 +1076,10 @@ public class Editor extends JFrame implements RunnerListener {
 	serialMonitor.setVisible(false);
 	serialMonitor = new SerialMonitor(Preferences.get("serial.port"));
 	base.onBoardOrPortChange();
+	return true;
       }
     }
+    return false;
   }
 
   protected JMenu buildHelpMenu() {
@@ -2369,9 +2371,12 @@ public class Editor extends JFrame implements RunnerListener {
   
   public boolean serialPrompt() {
     int count = serialMenu.getItemCount();
-    Object[] names = new Object[count];
-    for (int i = 0; i < count; i++) {
-      names[i] = ((JCheckBoxMenuItem)serialMenu.getItem(i)).getText();
+    Object[] names = new Object[count - 1];
+    // -1 for the separator after "Find Arduino"
+    for (int i = 0, j = 0; i < count; i++) {
+      if (serialMenu.getItem(i) == null)
+	continue;
+      names[j++] = ((JMenuItem)serialMenu.getItem(i)).getText();
     }
 
     String result = (String)
@@ -2387,9 +2392,14 @@ public class Editor extends JFrame implements RunnerListener {
                                   names,
                                   0);
     if (result == null) return false;
-    selectSerialPort(result);
-    base.onBoardOrPortChange();
-    return true;
+
+    if (result == _("Find Arduino..."))
+      return handleFindArduino();
+    else {
+      selectSerialPort(result);
+      base.onBoardOrPortChange();
+      return true;
+    }
   }
 
 
