@@ -434,6 +434,9 @@ public class Preferences {
       autoAssociateBox.setBounds(left, top, d.width + 10, d.height);
       right = Math.max(right, left + d.width);
       top += d.height + GUI_BETWEEN;
+
+      if (Base.getPortableFolder() != null)
+	autoAssociateBox.setEnabled(false);
     }
 
     // More preferences are in the ...
@@ -586,6 +589,11 @@ public class Preferences {
     // if the sketchbook path has changed, rebuild the menus
     String oldPath = get("sketchbook.path");
     String newPath = sketchbookLocationField.getText();
+    if (!newPath.isEmpty()) {
+      String portable = Base.getPortableFolder().toString();
+      if (portable != null)
+	newPath = RelativePath.relativePath(portable, newPath);
+    }
     if (!newPath.equals(oldPath)) {
       editor.base.rebuildSketchbookMenus();
       set("sketchbook.path", newPath);
