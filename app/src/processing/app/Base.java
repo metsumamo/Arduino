@@ -253,35 +253,37 @@ public class Base {
     librariesFolder = getContentFile("libraries");
     toolsFolder = getContentFile("tools");
 
-    if (portableFolder != null) {
-      File sketchbookFolder = new File(portableFolder, "sketchbook");
-      sketchbookFolder.mkdirs();
-    } else {
-      // Get the sketchbook path, and make sure it's set properly
-      String sketchbookPath = Preferences.get("sketchbook.path");
+    // Get the sketchbook path, and make sure it's set properly
+    String sketchbookPath = Preferences.get("sketchbook.path");
 
-      // If a value is at least set, first check to see if the folder exists.
-      // If it doesn't, warn the user that the sketchbook folder is being reset.
-      if (sketchbookPath != null) {
-	File skechbookFolder = new File(sketchbookPath);
-	if (!skechbookFolder.exists()) {
-	  Base.showWarning(_("Sketchbook folder disappeared"),
-			   _("The sketchbook folder no longer exists.\n" +
-			     "Arduino will switch to the default sketchbook\n" +
-			     "location, and create a new sketchbook folder if\n" +
-			     "necessary. Arduino will then stop talking about\n" +
-			     "himself in the third person."), null);
-	  sketchbookPath = null;
-	}
+    // If a value is at least set, first check to see if the folder exists.
+    // If it doesn't, warn the user that the sketchbook folder is being reset.
+    if (sketchbookPath != null) {
+      File sketchbookFolder;
+      if (portableFolder != null)
+	sketchbookFolder = new File(portableFolder, sketchbookPath);
+      else
+	sketchbookFolder = new File(sketchbookPath);
+      if (!sketchbookFolder.exists()) {
+        Base.showWarning(_("Sketchbook folder disappeared"),
+                         _("The sketchbook folder no longer exists.\n" +
+                           "Arduino will switch to the default sketchbook\n" +
+                           "location, and create a new sketchbook folder if\n" +
+                           "necessary. Arduino will then stop talking about\n" +
+                           "himself in the third person."), null);
+        sketchbookPath = null;
       }
+    }
 
-      // If no path is set, get the default sketchbook folder for this platform
-      if (sketchbookPath == null) {
-	File defaultFolder = getDefaultSketchbookFolder();
+    // If no path is set, get the default sketchbook folder for this platform
+    if (sketchbookPath == null) {
+      File defaultFolder = getDefaultSketchbookFolder();
+      if (portableFolder != null)
+	Preferences.set("sketchbook.path", "sketchbook");
+      else
 	Preferences.set("sketchbook.path", defaultFolder.getAbsolutePath());
-	if (!defaultFolder.exists()) {
-	  defaultFolder.mkdirs();
-	}
+      if (!defaultFolder.exists()) {
+        defaultFolder.mkdirs();
       }
     }
     
@@ -366,11 +368,12 @@ public class Base {
     for (int i = 0; i < count; i++) {
       String path = Preferences.get("last.sketch" + i + ".path");
       if (portableFolder != null) {
-	File absolute = new File(portableFolder + File.separator + path);
+	File absolute = new File(portableFolder, path);
 	try {
 	  path = absolute.getCanonicalPath();
 	}
 	catch (IOException e) {
+	  // path unchanged.
 	}
       }
       int[] location;
@@ -1594,7 +1597,7 @@ public class Base {
 
   static public File getSketchbookFolder() {
     if (portableFolder != null)
-      return new File(portableFolder, "sketchbook");
+      return new File(portableFolder, Preferences.get("sktchbook.path"));
     return new File(Preferences.get("sketchbook.path"));
   }
 
